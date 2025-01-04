@@ -13,8 +13,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.FlywheelConstants;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXbox;
+import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.FlywheelIONeo;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,11 +31,8 @@ import frc.robot.oi.DriverControlsXbox;
 public class RobotContainer {
   // For instructions on how to implement this class, refer to the README.md file
 
-  // Subsystems
-  // TODO: Implement the flywheel subsystem
-
-  // Controller
   private DriverControls m_driverControls;
+  private Flywheel m_Flywheel;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -40,14 +42,36 @@ public class RobotContainer {
   }
 
   private void configureSubsystems() {
-    // TODO: Implement this method
+    m_Flywheel =
+        new Flywheel(new FlywheelIONeo(FlywheelConstants.kMotorPort),new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD));
   }
 
   private void configureControllers() {
     m_driverControls = new DriverControlsXbox(1);
   }
+  /*
+  This method should set up the button bindings for the Flywheel subsystem.
+  DriverControls has already been implemented and instantiated in RobotContainer.
+   It has one method: runFlywheel(), which returns a Trigger.
 
+   You must bind the Trigger to the Flywheel subsystem's setDesiredVelocityCommand() method
+           WHEN the button is initially pressed, {
+                the Command object returned by setDesiredVelocityCommand() is scheduled with the desired velocity set to
+                Constants.FlywheelConstants.kVelocitySetpoint.
+          }
+          WHEN the button is released, {
+                the setDesiredVelocityCommand() is scheduled with the desired velocity set to 0.0.
+          }
+
+    Each of these commands should be run a single time when the button is pressed or released.
+
+    holy yap fest bruh i aint readin allat
+
+   */
   private void configureButtonBindings() {
-    // TODO: Implement this method
+    m_driverControls
+        .runFlywheel()
+        .onTrue(Commands.runOnce(() -> m_Flywheel.setDesiredVelocity(Constants.FlywheelConstants.kVelocitySetpoint)))
+        .onFalse(Commands.runOnce(() -> m_Flywheel.setDesiredVelocity(0)));
   }
 }
